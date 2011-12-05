@@ -52,6 +52,7 @@ module Rails3JQueryAutocomplete
             #allow specifying fully qualified class name for model object
             class_name = options[:class_name] || object
             items = get_autocomplete_items(:model => get_object(class_name), \
+              :controller => self, \
               :options => options, :term => term, :method => method)
           else
             items = {}

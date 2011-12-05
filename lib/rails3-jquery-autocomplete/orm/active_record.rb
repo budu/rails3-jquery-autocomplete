@@ -20,7 +20,13 @@ module Rails3JQueryAutocomplete
 
         items = model.scoped
 
-        scopes.each { |scope| items = items.send(scope) } unless scopes.empty?
+        scopes.each do |scope|
+          if scope.is_a? Proc
+            items = scope.call(items, parameters)
+          else
+            items = items.send(*Array(scope))
+          end
+        end unless scopes.empty?
 
         items = items.select(get_autocomplete_select_clause(model, method, options)) unless options[:full_model]
         items = items.where(get_autocomplete_where_clause(model, term, method, options)).
