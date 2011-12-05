@@ -42,7 +42,8 @@ module Rails3JQueryAutocomplete
     #
     module ClassMethods
       def autocomplete(object, method, options = {})
-        define_method("autocomplete_#{object}_#{method}") do
+        define_method(options[:action_name] ||
+                      "autocomplete_#{object}_#{method}") do
 
           method = options[:column_name] if options.has_key?(:column_name)
 
