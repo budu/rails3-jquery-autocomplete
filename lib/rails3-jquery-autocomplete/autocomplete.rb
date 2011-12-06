@@ -49,17 +49,23 @@ module Rails3JQueryAutocomplete
 
           term = params[:term]
 
+          # allow specifying fully qualified class name for model object
+          class_name = options[:class_name] || object
+          parameters = {
+            :model      => get_object(class_name),
+            :controller => self,
+            :term       => term,
+            :method     => method,
+            :options    => options
+          }
+
           if term && !term.blank?
-            #allow specifying fully qualified class name for model object
-            class_name = options[:class_name] || object
-            items = get_autocomplete_items(:model => get_object(class_name), \
-              :controller => self, \
-              :options => options, :term => term, :method => method)
+            items = get_autocomplete_items(parameters)
           else
             items = {}
           end
 
-          render :json => json_for_autocomplete(items, options[:display_value] ||= method, options[:extra_data])
+          render :json => json_for_autocomplete(items, parameters)
         end
       end
     end
@@ -83,12 +89,14 @@ module Rails3JQueryAutocomplete
     # Can be overriden to show whatever you like
     # Hash also includes a key/value pair for each method in extra_data
     #
-    def json_for_autocomplete(items, method, extra_data=[])
+    def json_for_autocomplete(items, parameters)
+      method = parameters[:options][:display_value] ||= parameters[:method]
+      extra_data = parameters[:options][:extra_data]
       items.collect do |item|
         hash = {"id" => item.id.to_s, "label" => item.send(method), "value" => item.send(method)}
         extra_data.each do |k, v|
           if v
-            hash[k] = v.is_a?(Proc) ? v.call(item) : item.send(v)
+            hash[k] = v.is_a?(Proc) ? v.call(item, parameters) : item.send(v)
           else
             hash[k] = item.send(k)
           end
