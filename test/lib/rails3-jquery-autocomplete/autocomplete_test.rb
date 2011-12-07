@@ -31,8 +31,8 @@ module Rails3JQueryAutocomplete
       should 'parse items to JSON' do
         item = generate_mocked_model_instance
 
-        items      = [item]
         parameters = { :method => :name, :options => {} }
+        items      = [item]
         response   = self.json_for_autocomplete(items, parameters).first
 
         assert_equal response["id"], "1"
@@ -45,14 +45,60 @@ module Rails3JQueryAutocomplete
           item = generate_mocked_model_instance
           mock(item).send("extra") { 'Object Extra' }
 
-          items      = [item]
           parameters = { :method => :name, :options => { :extra_data => ["extra"] } }
+          items      = [item]
           response   = self.json_for_autocomplete(items, parameters).first
 
           assert_equal "1"            , response["id"]
           assert_equal "Object Name"  , response["value"]
           assert_equal "Object Name"  , response["label"]
           assert_equal "Object Extra" , response["extra"]
+        end
+      end
+
+      context 'with extra data as a Hash' do
+        context 'having lambdas as values' do
+          should 'add that extra data to result' do
+            item = generate_mocked_model_instance
+
+            parameters = {
+              :method => :name,
+              :options => {
+                :extra_data => {
+                  "extra" => lambda { |item, parameters| 'Lambda Extra' }
+                }
+              }
+            }
+            items    = [item]
+            response = self.json_for_autocomplete(items, parameters).first
+
+            assert_equal "1"            , response["id"]
+            assert_equal "Object Name"  , response["value"]
+            assert_equal "Object Name"  , response["label"]
+            assert_equal "Lambda Extra" , response["extra"]
+          end
+        end
+
+        context 'having non-lambdas as values' do
+          should 'add that extra data to result' do
+            item = generate_mocked_model_instance
+            mock(item).send("exxtra") { 'Object Exxtra' }
+
+            parameters = {
+              :method => :name,
+              :options => { :extra_data => {
+                  "extra" => "exxtra"
+                }
+              }
+            }
+            items    = [item]
+            response = self.json_for_autocomplete(items, parameters).first
+
+            assert_equal "1"             , response["id"]
+            assert_equal "Object Name"   , response["value"]
+            assert_equal "Object Name"   , response["label"]
+            assert_equal 'Object Exxtra' , response["extra"]
+          end
         end
       end
     end
