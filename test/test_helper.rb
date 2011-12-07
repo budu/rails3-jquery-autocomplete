@@ -27,5 +27,12 @@ ActionController::Base.send :include, Rails3JQueryAutocomplete::Application.rout
 
 class Test::Unit::TestCase
   include RR::Adapters::TestUnit
+
+  def generate_mocked_model_instance
+    item = mock(Object)
+    mock(item).send(:name).times(2) { 'Object Name' }
+    mock(item).id { 1 }
+    item
+  end
 end
 
