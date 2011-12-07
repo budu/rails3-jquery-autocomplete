@@ -12,6 +12,13 @@ module Rails3JQueryAutocomplete
         @controller = ActorsController.new
         @items = {}
         @options = { :display_value => :name }
+        @parameters = {
+          :term       => nil,
+          :model      => Movie,
+          :method     => :name,
+          :controller => @controller,
+          :options    => {}
+        }
       end
 
       should 'respond to the action' do
@@ -19,17 +26,15 @@ module Rails3JQueryAutocomplete
       end
 
       should 'render the JSON items' do
-        mock(@controller).get_autocomplete_items({
-          :model => Movie, :method => :name, :options => @options, :term => "query"
-        }) { @items }
-
-        mock(@controller).json_for_autocomplete(@items, :name, nil)
+        parameters = @parameters.merge(:term => "query")
+        mock(@controller).get_autocomplete_items(parameters) { @items }
+        mock(@controller).json_for_autocomplete(@items, parameters)
         get :autocomplete_movie_name, :term => 'query'
       end
 
       context 'no term is specified' do
         should "render an empty hash" do
-          mock(@controller).json_for_autocomplete({}, :name, nil)
+          mock(@controller).json_for_autocomplete({}, @parameters)
           get :autocomplete_movie_name
         end
       end

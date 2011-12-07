@@ -32,8 +32,9 @@ module Rails3JQueryAutocomplete
         item = mock(Object)
         mock(item).send(:name).times(2) { 'Object Name' }
         mock(item).id { 1 }
-        items    = [item]
-        response = self.json_for_autocomplete(items, :name).first
+        items      = [item]
+        parameters = { :method => :name, :options => {} }
+        response   = self.json_for_autocomplete(items, parameters).first
         assert_equal response["id"], "1"
         assert_equal response["value"], "Object Name"
         assert_equal response["label"], "Object Name"
@@ -46,8 +47,9 @@ module Rails3JQueryAutocomplete
           mock(item).id { 1 }
           mock(item).send("extra") { 'Object Extra ' }
 
-          items    = [item]
-          response = self.json_for_autocomplete(items, :name, ["extra"]).first
+          items      = [item]
+          parameters = { :method => :name, :options => { :extra_data => ["extra"] } }
+          response   = self.json_for_autocomplete(items, parameters).first
 
           assert_equal "1"           , response["id"]
           assert_equal "Object Name" , response["value"]
