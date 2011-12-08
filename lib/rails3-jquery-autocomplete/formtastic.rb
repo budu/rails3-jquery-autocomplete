@@ -19,10 +19,24 @@ begin
           include Base
           include Base::Stringish
 
+          def id_field_dom_id(method)
+            [ builder.custom_namespace,
+              sanitized_object_name,
+              dom_index,
+              method.to_s.gsub(/[\?\/\-]$/, '')
+            ].reject { |x| x.blank? }.join('_')
+          end
+
+          def input_html_options
+            { :id_element => '#' + id_field_dom_id(options[:id_field])
+            }.merge(super) if options[:id_field]
+          end
+
           def to_html
             input_wrapping do
-              label_html <<
-              builder.autocomplete_field(method, options.delete(:url), input_html_options)
+              result = label_html <<
+                builder.autocomplete_field(method, options.delete(:url), input_html_options) <<
+                (builder.hidden_field options.delete :id_field if options[:id_field])
             end
           end
         end
