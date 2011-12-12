@@ -28,15 +28,19 @@ begin
           end
 
           def input_html_options
-            { :id_element => '#' + id_field_dom_id(options[:id_field])
-            }.merge(super) if options[:id_field]
+            if options[:id_field]
+              { :id_element => '#' + id_field_dom_id(options[:id_field])
+              }.merge(super)
+            else
+              super
+            end
           end
 
           def to_html
             input_wrapping do
               result = label_html <<
                 builder.autocomplete_field(method, options.delete(:url), input_html_options) <<
-                (builder.hidden_field options.delete :id_field if options[:id_field])
+                (options[:id_field] ? builder.hidden_field(options.delete :id_field) : '')
             end
           end
         end
