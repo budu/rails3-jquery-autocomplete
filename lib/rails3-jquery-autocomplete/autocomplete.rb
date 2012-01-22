@@ -90,10 +90,17 @@ module Rails3JQueryAutocomplete
     # Hash also includes a key/value pair for each method in extra_data
     #
     def json_for_autocomplete(items, parameters)
-      method = parameters[:options][:display_value] ||= parameters[:method]
-      extra_data = parameters[:options][:extra_data]
+      display_value = parameters[:options][:display_value] ||= parameters[:method]
+      label         = parameters[:options][:label]         ||= parameters[:method]
+      extra_data    = parameters[:options][:extra_data]
+
       items.collect do |item|
-        hash = {"id" => item.id.to_s, "label" => item.send(method), "value" => item.send(method)}
+        hash = {
+          "id" => item.id.to_s,
+          "label" => item.send(label),
+          "value" => item.send(display_value)
+        }
+
         extra_data.each do |k, v|
           if v
             hash[k] = v.is_a?(Proc) ? v.call(item, parameters) : item.send(v)
